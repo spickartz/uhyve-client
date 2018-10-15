@@ -7,5 +7,6 @@ extern unsigned short migrate(char *, char *, char *, unsigned char, unsigned ch
 int main() {
 	unsigned short ret = migrate("epyc-0", "live", "incremental", true, true);
 
+	printf("migrate() returned with '%u'\n", ret);
 	return 0;
 }

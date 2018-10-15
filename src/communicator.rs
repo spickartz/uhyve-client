@@ -11,19 +11,22 @@ pub struct Communicator {
 
 impl Communicator {
     pub fn send_cmd(server: &str, msg: &str) -> Result<Status, ()> {
+        // Connect to server and send json request
         let mut comm = Communicator::connect(server).unwrap();
         comm.sock.write_all(msg.as_bytes()).unwrap();
+        comm.sock.shutdown(Shutdown::Write).unwrap();
 
+        // Wait for status code
         let mut status_code = String::new();
         comm.sock.read_to_string(&mut status_code).unwrap();
-        let res = match Status::from_code(status_code.parse().unwrap()) {
-            Some(code) => Ok(code),
-            None => Err(()),
-        };
-        comm.disconnect();
 
-        res
+        // return http status code
+        match Status::from_code(status_code.parse().unwrap()) {
+            Some(code) => return Ok(code),
+            None => return Err(()),
+        };
     }
+
     fn connect(server: &str) -> Result<Communicator, ()> {
         let sock = match UnixStream::connect(server) {
             Ok(sock) => sock,
@@ -33,11 +36,5 @@ impl Communicator {
             }
         };
         Ok(Communicator { sock: sock })
-    }
-
-    fn disconnect(&self) {
-        self.sock
-            .shutdown(Shutdown::Both)
-            .expect("Shutdown of the socket failed!");
     }
 }
