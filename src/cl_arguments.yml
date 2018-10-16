@@ -1,0 +1,63 @@
+name: "uhyve-client"
+version: "0.0.1"
+about: "Control uhyve via the monitor interface"
+author: "Simon Pickartz"
+subcommand_required_else_help: true
+
+subcommands:
+    - checkpoint:
+        about: "Create a checkpoint from the uhyve instance."
+        args:
+            - full-checkpoint:
+                long: "full-checkpoint"
+                short: "f"
+                help: "Create a full checkpoint."
+            - path:
+                index: 1
+                required: true
+                help: "A location within the file system to store the checkpoint."
+    - start:
+        about: "Run an application within the uhyve instance."
+        args:
+            - path:
+                index: 1
+                required: true
+                help: "The path to the executable."
+    - restore:
+        about: "Restore an application from a given checkpoint."
+        args:
+            - path:
+                index: 1
+                required: true
+                help: "The path to the checkpoint image."
+    - migrate:
+        about: "Migrate the uhyve instance to a remote node."
+        args:
+            - destination:
+                index: 1
+                required: true
+                help: "IP/Hostname of the destination node."
+            - type:
+                short: "t"
+                long: "type"
+                help: "The migration type."
+                takes_value: true
+                default_value: "cold"
+                possible_values: [ cold, live ]
+            - mode:
+                short: "m"
+                long: "mode"
+                takes_value: true
+                help: "The migration mode."
+                possible_values: [complete, incremental]
+                default_value: "complete"
+            - use-odp:
+                short: "o"
+                long: "use-odp"
+                default_value: "false"
+                help: "Enable the IB ODP feature."
+            - prefetch:
+                short: "p"
+                long: "prefetch"
+                help: "Enable prefetching (requires ODP)."
+                requires: [ use-odp ]
