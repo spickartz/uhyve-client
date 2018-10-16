@@ -26,7 +26,11 @@ pub fn send_cmd(server: &str, msg: &str) -> Result<Status, Status> {
     sock.read_to_string(&mut status_code).unwrap();
 
     // return http status code
-    match Status::from_code(status_code.parse().unwrap()) {
+    let code = match status_code.parse() {
+		Ok(status) => status,
+		Err(_) => 0
+    };
+    match Status::from_code(code) {
         Some(code) => return Ok(code),
         None => return Err(Status::from_code("500".parse().unwrap()).unwrap()),
     };
