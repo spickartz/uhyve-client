@@ -22,7 +22,7 @@ fn main() {
                     );
                     std::process::exit(-1)
                 }
-	    }
+            }
         }
         ("checkpoint", Some(chkpt_matches)) => {
             let path_to_checkpoint = chkpt_matches.value_of("path").unwrap();
