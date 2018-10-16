@@ -5,7 +5,6 @@ extern crate serde_json;
 mod communicator;
 pub mod libuhyve_c;
 
-use communicator::Communicator;
 use rocket::http::Status;
 
 const SERVER: &str = "/tmp/uhyve.sock";
@@ -16,8 +15,7 @@ pub fn start_app(path_to_app: &str) -> Result<Status, Status> {
         "task": "start app",
         "path": path_to_app,
     });
-    let status = Communicator::send_cmd(SERVER, &msg.to_string()).unwrap();
-    Ok(status)
+    communicator::send_cmd(SERVER, &msg.to_string())
 }
 
 /// Triggers the creation of a checkpoint
@@ -32,8 +30,7 @@ pub fn create_checkpoint(
             "full-checkpoint": full_checkpoint,
         }
     });
-    let status = Communicator::send_cmd(SERVER, &msg.to_string()).unwrap();
-    Ok(status)
+    communicator::send_cmd(SERVER, &msg.to_string())
 }
 
 /// Restores a given checkpoint
@@ -42,8 +39,7 @@ pub fn load_checkpoint(path_to_checkpoint: &str) -> Result<Status, Status> {
         "task": "load checkpoint",
         "path": path_to_checkpoint,
     });
-    let status = Communicator::send_cmd(SERVER, &msg.to_string()).unwrap();
-    Ok(status)
+    communicator::send_cmd(SERVER, &msg.to_string())
 }
 
 /// Migrates a uhyve instance to another node
@@ -70,6 +66,5 @@ pub fn migrate(
             "prefetch": prefetch,
         },
     });
-    let status = Communicator::send_cmd(SERVER, &msg.to_string()).unwrap();
-    Ok(status)
+    communicator::send_cmd(SERVER, &msg.to_string())
 }

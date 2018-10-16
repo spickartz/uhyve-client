@@ -1,7 +1,73 @@
+#[macro_use]
+extern crate clap;
 extern crate libuhyve;
 
-pub fn main() {
-    let res = libuhyve::create_checkpoint("/foo/bar", true);
+#[cfg(feature = "yaml")]
+use clap::{App, AppSettings, Arg, SubCommand};
 
-    println!("Function returned with {:?}", res)
+fn main() {
+    let yml = load_yaml!("cl_arguments.yml");
+    let app = clap::App::from_yaml(yml).setting(clap::AppSettings::SubcommandRequired);
+    let matches = app.get_matches();
+
+    match matches.subcommand() {
+        ("start", Some(start_matches)) => {
+            let path_to_app = start_matches.value_of("path").unwrap();
+            libuhyve::start_app(path_to_app).unwrap();
+        }
+        ("checkpoint", Some(chkpt_matches)) => {
+            let path_to_checkpoint = chkpt_matches.value_of("path").unwrap();
+            let full_checkpoint = if chkpt_matches.is_present("full-checkpoint") {
+                true
+            } else {
+                false
+            };
+            match libuhyve::create_checkpoint(path_to_checkpoint, full_checkpoint) {
+                Ok(_) => (),
+                Err(status) => {
+                    println!(
+                        "[ERROR] Could not create the checkpoint (code: {}). Abort!",
+                        status.code
+                    );
+                    std::process::exit(-1)
+                }
+            }
+        }
+        ("restore", Some(restore_matches)) => {
+            let path_to_checkpoint = restore_matches.value_of("path").unwrap();
+            match libuhyve::load_checkpoint(path_to_checkpoint) {
+                Ok(_) => (),
+                Err(status) => {
+                    println!(
+                        "[ERROR] Could not restore the checkpoint (code: {}). Abort!",
+                        status.code
+                    );
+                    std::process::exit(-1)
+                }
+            }
+        }
+        ("migrate", Some(migrate_matches)) => {
+            let destination = migrate_matches.value_of("destination").unwrap();
+            let mig_type = migrate_matches.value_of("type").unwrap();
+            let mig_mode = migrate_matches.value_of("mode").unwrap();
+            let use_odp = if migrate_matches.is_present("use-odp") {
+                true
+            } else {
+                false
+            };
+            let prefetch = if migrate_matches.is_present("prefetch") {
+                true
+            } else {
+                false
+            };
+            match libuhyve::migrate(destination, mig_type, mig_mode, use_odp, prefetch) {
+                Ok(_) => (),
+                Err(status) => {
+                    println!("[ERROR] Could not migrate (code: {}). Abort!", status.code);
+                    std::process::exit(-1)
+                }
+            }
+        }
+        _ => unreachable!(),
+    }
 }
