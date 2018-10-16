@@ -22,14 +22,13 @@ pub fn send_cmd(server: &str, msg: &str) -> Result<Status, Status> {
     sock.shutdown(Shutdown::Write).unwrap();
 
     // Wait for status code
-    let mut status_code = String::new();
-    sock.read_to_string(&mut status_code).unwrap();
+    let mut raw_bytes: Vec<u8> = vec![];
+    sock.read_to_end(&mut raw_bytes).unwrap();
+    raw_bytes.remove(3);
+    let status_code = String::from_utf8(raw_bytes).unwrap();
 
     // return http status code
-    let code = match status_code.parse() {
-		Ok(status) => status,
-		Err(_) => 0
-    };
+    let code: u16 = status_code.parse().unwrap();
     match Status::from_code(code) {
         Some(code) => return Ok(code),
         None => return Err(Status::from_code("500".parse().unwrap()).unwrap()),
