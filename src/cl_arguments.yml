@@ -49,8 +49,8 @@ subcommands:
                 long: "mode"
                 takes_value: true
                 help: "The migration mode."
-                possible_values: [complete, incremental]
-                default_value: "complete"
+                possible_values: [complete-dump, incremental-dump]
+                default_value: "complete-dump"
             - use-odp:
                 short: "o"
                 long: "use-odp"
