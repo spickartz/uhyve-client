@@ -54,7 +54,6 @@ subcommands:
             - use-odp:
                 short: "o"
                 long: "use-odp"
-                default_value: "false"
                 help: "Enable the IB ODP feature."
             - prefetch:
                 short: "p"
